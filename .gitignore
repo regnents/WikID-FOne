@@ -183,3 +183,7 @@ cython_debug/
 # Additional file
 temp.py
 temp/
+
+# Result file
+drivers_standing.txt
+f1r2025.txt
