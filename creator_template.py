@@ -138,6 +138,7 @@ def creator_f1_drivers_standing():
 [[Kategori:Templat Formula Satu]]</noinclude>
 <noinclude>"""
     text = text + text_end
+    text = text.replace("Sao", "São")
     with open("drivers_standing.txt", "w", encoding="utf-8") as f:
         f.write(text)
     db_closer(mycursor, mydb)
@@ -207,6 +208,7 @@ def creator_f1r2025():
         )
         text += text_driver
     text += "\n\n}}<noinclude>\n{{Documentation}}</noinclude>"
+    text = text.replace("Sao", "São")
     with open("f1r2025.txt", "w", encoding="utf-8") as f:
         f.write(text)
     db_closer(mycursor, mydb)
