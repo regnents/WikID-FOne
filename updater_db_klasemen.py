@@ -47,20 +47,3 @@ def update_one():
                 )
             isFound = True
     db_closer(mycursor, mydb)
-
-
-if __name__ == "__main__":
-    print("Pilihan opsi:")
-    print("1. Update keseluruhan klasemen")
-    print("2. Update klasemen dari pembalap tertentu")
-    isDone = False
-    while not isDone:
-        opsi = input("Pilihan: ")
-        if opsi == "1":
-            update_all()
-            isDone = True
-        elif opsi == "2":
-            update_one()
-            isDone = True
-        else:
-            print("Input salah, silahkan coba lagi")

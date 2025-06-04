@@ -212,16 +212,3 @@ def creator_f1r2025():
     with open("f1r2025.txt", "w", encoding="utf-8") as f:
         f.write(text)
     db_closer(mycursor, mydb)
-
-
-if __name__ == "__main__":
-    print("Templat yang dapat dibuat:")
-    print("1. Templat F1 Drivers Standing")
-    print("2. Templat F1R2025")
-    opt = input("Silahkan pilih templat yang ingin dibuat: ")
-    if opt == "1":
-        creator_f1_drivers_standing()
-    elif opt == "2":
-        creator_f1r2025()
-    else:
-        print("Opsi salah. Mengakhiri program.")
