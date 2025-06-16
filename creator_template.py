@@ -2,7 +2,7 @@ from additional_func import db_activator, db_closer, f1r_coltit_color, f1_race_p
 
 RACE_AMOUNT = 24
 QUERY_SELECT_HASIL_BALAPAN_TERURUT = """
-SELECT balapan.urutan, hasil_balapan.posisi, hasil_balapan.posisi_sprint, hasil_balapan.pole, hasil_balapan.fl
+SELECT balapan.urutan, hasil_balapan.posisi, hasil_balapan.posisi_sprint, hasil_balapan.pole, hasil_balapan.fl, hasil_balapan.dnf
 FROM balapan LEFT JOIN hasil_balapan ON balapan.kode = hasil_balapan.kode_balapan
 WHERE hasil_balapan.kode_pembalap = %s
 ORDER BY balapan.urutan;
@@ -17,7 +17,7 @@ QUERY_SELECT_KLASEMEN_TERURUT_KODE_PEMBALAP = (
     "SELECT * FROM klasemen ORDER BY kode_pembalap;"
 )
 QUERY_SELECT_HASIL_BALAPAN_SPESIFIK_PEMBALAP_BALAPAN = """
-SELECT  posisi, posisi_sprint, pole, fl
+SELECT  posisi, posisi_sprint, pole, fl, dnf
 FROM hasil_balapan
 WHERE kode_pembalap=%s AND kode_balapan=%s;
 """
@@ -36,6 +36,7 @@ def creator_f1_drivers_standing():
 |
 {|class="wikitable" style="font-size:80%; text-align:center"
 """
+    # PENAMBAHAN HEADER ATAS
     text_header = """!{{Abbr|Pos|Posisi}}
 !Pembalap
 """
@@ -52,6 +53,7 @@ def creator_f1_drivers_standing():
         )
     text = text + text_header
     text += '!style="position:sticky; right: 0; background-clip: padding-box;"|[[Daftar sistem poin Kejuaraan Dunia Formula Satu|Poin]]\n|-\n'
+    # PEMBUATAN ISI TABEL TEMPLAT
     mycursor.execute(QUERY_SELECT_KLASEMEN_TERURUT_POSISI)
     list_pembalap = mycursor.fetchall()
     for i in range(len(list_pembalap)):
@@ -94,6 +96,8 @@ def creator_f1_drivers_standing():
                     else:
                         text_driver = text_driver + "bgcolor="
                         text_driver += f1r_coltit_color(pos)
+                    if (pos.isnumeric()) and (list_hasil_balapan[k][5]):
+                        pos += "\u2020"
                     # CHANGE POS INTO USING F1 RACE POSITION TEMPLATE WHEN NECESSARY
                     if (
                         (list_hasil_balapan[k][2])
@@ -123,8 +127,10 @@ def creator_f1_drivers_standing():
         text_driver = text_driver + "|-\n"
         text = text + text_driver
     db_closer(mycursor, mydb)
+    # PENAMBAHAN HEADER BAWAH
     text = text + text_header
     text = text + "![[Daftar sistem poin Kejuaraan Dunia Formula Satu|Poin]]\n|-\n"
+    # PENAMBAHAN TEKS PELENGKAP
     text_end = """!colspan=27|Sumber:<ref></ref>
 |}
 |valign=top|
@@ -139,6 +145,7 @@ def creator_f1_drivers_standing():
 <noinclude>"""
     text = text + text_end
     text = text.replace("Sao", "São")
+    # PENYIMPANAN KE DOKUMEN
     with open("drivers_standing.txt", "w", encoding="utf-8") as f:
         f.write(text)
     db_closer(mycursor, mydb)
@@ -175,6 +182,8 @@ def creator_f1r2025():
             text_driver = text_driver + " | " + balapan[0] + " = " + text_coltit
             if hasil_balapan:
                 pos = hasil_balapan[0] if not hasil_balapan[0].isnumeric() else str(int(hasil_balapan[0]))
+                if pos.isnumeric() and hasil_balapan[4]:
+                    pos += "\u2020"
                 text_driver = text_driver + " " + f1_race_position(pos, s=hasil_balapan[1], p=hasil_balapan[2], f=hasil_balapan[3])
             text_driver = text_driver + "\n"
             text_driver = text_driver + " | " + balapan[0] + "2 = " + text_coltit
@@ -191,6 +200,8 @@ def creator_f1r2025():
             text_driver = text_driver + " " + text_url_gp + "<br />{{small|"
             if hasil_balapan:
                 pos = hasil_balapan[0] if not hasil_balapan[0].isnumeric() else str(int(hasil_balapan[0]))
+                if pos.isnumeric() and hasil_balapan[4]:
+                    pos += "\u2020"
                 text_driver += f1_race_position(pos, s=hasil_balapan[1])
             else:
                 text_driver += " "
