@@ -1,6 +1,6 @@
 from additional_func import db_activator, db_closer, soup_creator, url_fixer
 
-QUERY_INSERT_HASIL_BALAPAN = "INSERT INTO hasil_balapan(kode_pembalap, kode_balapan, posisi) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE posisi=%s;"
+QUERY_INSERT_HASIL_BALAPAN = "INSERT INTO hasil_balapan(kode_pembalap, kode_balapan, posisi, dnf) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE posisi=%s;"
 QUERY_UPDATE_POSISI_POLE = (
     "UPDATE hasil_balapan SET pole=TRUE WHERE kode_pembalap=%s AND kode_balapan=%s;"
 )
@@ -28,16 +28,23 @@ def update_hasil(kode_balapan, url_balapan):
     for tr in tbody.find_all("tr"):
         list_td = tr.find_all("td")
         finish_pos = ""
+        isDNF = False
         if list_td[0].find("p").text == "NC":
             finish_pos = "Ret"
+            isDNF = True
         elif list_td[0].find("p").text == "DQ":
             finish_pos = "DSQ"
-        elif len(list_td[0].find("p").text) == 1:
-            finish_pos = "0" + list_td[0].find("p").text
+        elif list_td[0].find("p").text.isnumeric():
+            if len(list_td[0].find("p").text) == 1:
+                finish_pos = "0" + list_td[0].find("p").text
+            else:
+                finish_pos = list_td[0].find("p").text
+            if list_td[5].find("p").text == "DNF":
+                isDNF = True
         else:
             finish_pos = list_td[0].find("p").text
         kode_pembalap = list_td[2].find("span", class_="tablet:hidden").text
-        val = (kode_pembalap, kode_balapan, finish_pos, finish_pos)
+        val = (kode_pembalap, kode_balapan, finish_pos, isDNF, finish_pos)
 
         mycursor.execute(QUERY_INSERT_HASIL_BALAPAN, val)
         mydb.commit()
