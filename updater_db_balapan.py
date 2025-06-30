@@ -43,7 +43,7 @@ def update_hasil(kode_balapan, url_balapan):
                 isDNF = True
         else:
             finish_pos = list_td[0].find("p").text
-        kode_pembalap = list_td[2].find("span", class_="tablet:hidden").text
+        kode_pembalap = list_td[2].find("span", class_="md:hidden").text
         val = (kode_pembalap, kode_balapan, finish_pos, isDNF, finish_pos)
 
         mycursor.execute(QUERY_INSERT_HASIL_BALAPAN, val)
@@ -64,7 +64,7 @@ def update_pole_link(kode_balapan, url_grid_awal):
     kode_pembalap = (
         tbody.find_all("tr")[0]
         .find_all("td")[2]
-        .find("span", class_="tablet:hidden")
+        .find("span", class_="md:hidden")
         .text
     )
     update_pole_kode_pembalap(kode_balapan, kode_pembalap)
@@ -83,7 +83,7 @@ def update_fl_link(kode_balapan, url_fl):
     kode_pembalap = (
         tbody.find_all("tr")[0]
         .find_all("td")[2]
-        .find("span", class_="tablet:hidden")
+        .find("span", class_="md:hidden")
         .text
     )
     update_fl_kode_pembalap(kode_balapan, kode_pembalap)
@@ -100,7 +100,7 @@ def update_sprint(kode_balapan, url_hasil_sprint):
         sprint_pos = list_td[0].find("p").text
         if len(sprint_pos) == 1:
             sprint_pos = "0" + sprint_pos
-        kode_pembalap = list_td[2].find("span", class_="tablet:hidden").text
+        kode_pembalap = list_td[2].find("span", class_="md:hidden").text
         val = (sprint_pos, kode_pembalap, kode_balapan)
         mycursor.execute(QUERY_UPDATE_SPRINT, val)
         mydb.commit()

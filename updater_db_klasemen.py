@@ -13,7 +13,7 @@ def update_all():
         posisi = list_td[0].find("p").text
         if len(posisi) == 1:
             posisi = "0" + posisi
-        kode_pembalap = list_td[1].find("span", class_="tablet:hidden").text
+        kode_pembalap = list_td[1].find("span", class_="md:hidden").text
         poin = int(list_td[4].find("p").text)
         val = (posisi, poin, kode_pembalap,  posisi, poin)
         mycursor.execute(QUERY_UPDATE_KLASEMEN, val)
@@ -31,7 +31,7 @@ def update_one():
         list_td = tr.find_all("td")
         isFound = False
         if not isFound and (
-            list_td[1].find("span", class_="tablet:hidden").text == kode_pembalap
+            list_td[1].find("span", class_="md:hidden").text == kode_pembalap
         ):
             posisi = list_td[0].find("p").text
             if len(posisi) == 1:
