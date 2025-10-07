@@ -131,7 +131,7 @@ def creator_f1_drivers_standing():
     text = text + text_header
     text = text + "![[Daftar sistem poin Kejuaraan Dunia Formula Satu|Poin]]\n|-\n"
     # PENAMBAHAN TEKS PELENGKAP
-    text_end = """!colspan=27|Sumber:<ref></ref>
+    text_end = """!colspan=27|Sumber:<ref>{{cite web|url= |title= |date= |access-date= |language=en|publisher=Federasi Automobil Internasional}}</ref>
 |}
 |valign=top|
 {{F1 driver results legend 8}}
