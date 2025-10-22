@@ -8,13 +8,14 @@ def update_all():
     mydb = db_activator()
     mycursor = mydb.cursor()
     tbody = soup_creator(STANDING_LINK).find("tbody")
+
     for tr in tbody.find_all("tr"):
         list_td = tr.find_all("td")
-        posisi = list_td[0].find("p").text
+        posisi = list_td[0].text
         if len(posisi) == 1:
             posisi = "0" + posisi
         kode_pembalap = list_td[1].find("span", class_="md:hidden").text
-        poin = int(list_td[4].find("p").text)
+        poin = int(list_td[4].text)
         val = (posisi, poin, kode_pembalap,  posisi, poin)
         mycursor.execute(QUERY_UPDATE_KLASEMEN, val)
         mydb.commit()
@@ -33,10 +34,10 @@ def update_one():
         if not isFound and (
             list_td[1].find("span", class_="md:hidden").text == kode_pembalap
         ):
-            posisi = list_td[0].find("p").text
+            posisi = list_td[0].text
             if len(posisi) == 1:
                 posisi = "0" + posisi
-            poin = int(list_td[4].find("p").text)
+            poin = int(list_td[4].text)
             mycursor.execute(QUERY_UPDATE_KLASEMEN, (posisi, poin, kode_pembalap, posisi, poin))
             mydb.commit()
             if mycursor.rowcount == 0:

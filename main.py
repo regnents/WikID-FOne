@@ -26,8 +26,7 @@ if __name__ == "__main__":
             print("Anda hendak memperbarui basis data Anda")
             print("Pembaruan basis data yang dapat dilakukan:")
             print("1. Pembaruan keseluruhan klasemen")
-            print("2. Pembaruan klasemen salah satu pembalap")
-            print("3. Pembaruan hasil keseluruhan suatu Grand Prix")
+            print("2. Pembaruan hasil keseluruhan suatu Grand Prix")
             print("0. Batal")
             opsi_update = input("Masukkan opsi pembaruan yang ingin Anda lakukan: ")
             if opsi_update == "0":
@@ -37,8 +36,6 @@ if __name__ == "__main__":
             elif opsi_update == "1":
                 updater_db_klasemen.update_all()
             elif opsi_update == "2":
-                updater_db_klasemen.update_one()
-            elif opsi_update == "3":
                 updater_db_balapan.update_all()
             else:
                 wrong_input()

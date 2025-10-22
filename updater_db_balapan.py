@@ -29,20 +29,20 @@ def update_hasil(kode_balapan, url_balapan):
         list_td = tr.find_all("td")
         finish_pos = ""
         isDNF = False
-        if list_td[0].find("p").text == "NC":
+        if list_td[0].text == "NC":
             finish_pos = "Ret"
             isDNF = True
-        elif list_td[0].find("p").text == "DQ":
+        elif list_td[0].text == "DQ":
             finish_pos = "DSQ"
-        elif list_td[0].find("p").text.isnumeric():
-            if len(list_td[0].find("p").text) == 1:
-                finish_pos = "0" + list_td[0].find("p").text
+        elif list_td[0].text.isnumeric():
+            if len(list_td[0].text) == 1:
+                finish_pos = "0" + list_td[0].text
             else:
-                finish_pos = list_td[0].find("p").text
-            if list_td[5].find("p").text == "DNF":
+                finish_pos = list_td[0].text
+            if list_td[5].text == "DNF":
                 isDNF = True
         else:
-            finish_pos = list_td[0].find("p").text
+            finish_pos = list_td[0].text
         kode_pembalap = list_td[2].find("span", class_="md:hidden").text
         val = (kode_pembalap, kode_balapan, finish_pos, isDNF, finish_pos)
 
@@ -97,7 +97,7 @@ def update_sprint(kode_balapan, url_hasil_sprint):
     i = 0
     while i < 8:  # HANYA MENYIMPAN PEMBALAP YG DAPAT POIN SPRINT (8 TERATAS)
         list_td = list_tr[i].find_all("td")
-        sprint_pos = list_td[0].find("p").text
+        sprint_pos = list_td[0].text
         if len(sprint_pos) == 1:
             sprint_pos = "0" + sprint_pos
         kode_pembalap = list_td[2].find("span", class_="md:hidden").text
