@@ -1,13 +1,14 @@
 from additional_func import db_activator, db_closer, soup_creator
 
-STANDING_LINK = "https://www.formula1.com/en/results/2025/drivers"
-QUERY_UPDATE_KLASEMEN = "INSERT INTO klasemen(posisi_klasemen, poin, kode_pembalap) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE posisi_klasemen=%s, poin=%s"
+STANDING_LINK = "https://www.formula1.com/en/results/"
+QUERY_UPDATE_KLASEMEN = "INSERT INTO klasemen(posisi_klasemen, poin, kode_pembalap, musim) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE posisi_klasemen=%s, poin=%s"
 
 
 def update_all():
+    musim = input("Masukkan musim yang klasemennya ingin diperbarui: ")
     mydb = db_activator()
     mycursor = mydb.cursor()
-    tbody = soup_creator(STANDING_LINK).find("tbody")
+    tbody = soup_creator(STANDING_LINK + musim + "/drivers").find("tbody")
 
     for tr in tbody.find_all("tr"):
         list_td = tr.find_all("td")
@@ -16,18 +17,20 @@ def update_all():
             posisi = "0" + posisi
         kode_pembalap = list_td[1].find("span", class_="md:hidden").text
         poin = int(list_td[4].text)
-        val = (posisi, poin, kode_pembalap,  posisi, poin)
+        val = (posisi, poin, kode_pembalap,  musim, posisi, poin)
         mycursor.execute(QUERY_UPDATE_KLASEMEN, val)
         mydb.commit()
     db_closer(mycursor, mydb)
 
 
 def update_one():
+    kode_pembalap = input("Masukkan kode pembalap yang ingin datanya diperbarui: ")
+    musim = input("Masukkan musim: ")
+    
     mydb = db_activator()
     mycursor = mydb.cursor()
-    tbody = soup_creator().find("tbody")
-    kode_pembalap = input("Masukkan kode pembalap yang ingin datanya diperbarui: ")
-
+    tbody = soup_creator(STANDING_LINK + musim + "/drivers").find("tbody")
+    
     for tr in tbody.find_all("tr"):
         list_td = tr.find_all("td")
         isFound = False
@@ -38,7 +41,7 @@ def update_one():
             if len(posisi) == 1:
                 posisi = "0" + posisi
             poin = int(list_td[4].text)
-            mycursor.execute(QUERY_UPDATE_KLASEMEN, (posisi, poin, kode_pembalap, posisi, poin))
+            mycursor.execute(QUERY_UPDATE_KLASEMEN, (posisi, poin, kode_pembalap, musim, posisi, poin))
             mydb.commit()
             if mycursor.rowcount == 0:
                 print(

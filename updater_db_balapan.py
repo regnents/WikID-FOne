@@ -1,27 +1,28 @@
 from additional_func import db_activator, db_closer, soup_creator, url_fixer
 
-QUERY_INSERT_HASIL_BALAPAN = "INSERT INTO hasil_balapan(kode_pembalap, kode_balapan, posisi, dnf) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE posisi=%s;"
+QUERY_INSERT_HASIL_BALAPAN = "INSERT INTO hasil_balapan(kode_pembalap, kode_balapan, posisi, dnf, musim) VALUES (%s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE posisi=%s;"
 QUERY_UPDATE_POSISI_POLE = (
-    "UPDATE hasil_balapan SET pole=TRUE WHERE kode_pembalap=%s AND kode_balapan=%s;"
+    "UPDATE hasil_balapan SET pole=TRUE WHERE kode_pembalap=%s AND kode_balapan=%s AND musim=%s;"
 )
 QUERY_UPDATE_FL = (
-    "UPDATE hasil_balapan SET fl=TRUE WHERE kode_pembalap=%s AND kode_balapan=%s;"
+    "UPDATE hasil_balapan SET fl=TRUE WHERE kode_pembalap=%s AND kode_balapan=%s AND musim=%s;"
 )
-QUERY_UPDATE_SPRINT = "UPDATE hasil_balapan SET posisi_sprint=%s WHERE kode_pembalap=%s AND kode_balapan=%s;"
+QUERY_UPDATE_SPRINT = "UPDATE hasil_balapan SET posisi_sprint=%s WHERE kode_pembalap=%s AND kode_balapan=%s AND musim=%s;"
 
 
 def update_all():
-    kode_balapan = input("Masukkan kode Grand Prix:")
+    kode_balapan = input("Masukkan kode Grand Prix: ")
+    musim_balapan = input("Masukkan musim balapan: ")
     link_balapan = input("Masukkan url balapan: ")
-    update_hasil(kode_balapan, link_balapan)
+    update_hasil(kode_balapan, musim_balapan, link_balapan)
     isSprint = input("Apakah balapan sprint? (Y/N) ")
     if isSprint == "Y":
-        update_sprint(kode_balapan, url_fixer(link_balapan, 2))
-    update_pole_link(kode_balapan, url_fixer(link_balapan, 3))
-    update_fl_link(kode_balapan, url_fixer(link_balapan, 4))
+        update_sprint(kode_balapan, musim_balapan, url_fixer(link_balapan, 2))
+    update_pole_link(kode_balapan, musim_balapan, url_fixer(link_balapan, 3))
+    update_fl_link(kode_balapan, musim_balapan, url_fixer(link_balapan, 4))
 
 
-def update_hasil(kode_balapan, url_balapan):
+def update_hasil(kode_balapan, musim_balapan, url_balapan):
     tbody = soup_creator(url_balapan).find("tbody")
     mydb = db_activator()
     mycursor = mydb.cursor()
@@ -44,22 +45,22 @@ def update_hasil(kode_balapan, url_balapan):
         else:
             finish_pos = list_td[0].text
         kode_pembalap = list_td[2].find("span", class_="md:hidden").text
-        val = (kode_pembalap, kode_balapan, finish_pos, isDNF, finish_pos)
+        val = (kode_pembalap, kode_balapan, finish_pos, isDNF, musim_balapan, finish_pos)
 
         mycursor.execute(QUERY_INSERT_HASIL_BALAPAN, val)
         mydb.commit()
     db_closer(mycursor, mydb)
 
 
-def update_pole_kode_pembalap(kode_balapan, kode_pembalap):
+def update_pole_kode_pembalap(kode_balapan, musim_balapan, kode_pembalap):
     mydb = db_activator()
     mycursor = mydb.cursor()
-    mycursor.execute(QUERY_UPDATE_POSISI_POLE, (kode_pembalap, kode_balapan))
+    mycursor.execute(QUERY_UPDATE_POSISI_POLE, (kode_pembalap, kode_balapan, musim_balapan))
     mydb.commit()
     db_closer(mycursor, mydb)
 
 
-def update_pole_link(kode_balapan, url_grid_awal):
+def update_pole_link(kode_balapan, musim_balapan, url_grid_awal):
     tbody = soup_creator(url_grid_awal).find("tbody")
     kode_pembalap = (
         tbody.find_all("tr")[0]
@@ -67,18 +68,18 @@ def update_pole_link(kode_balapan, url_grid_awal):
         .find("span", class_="md:hidden")
         .text
     )
-    update_pole_kode_pembalap(kode_balapan, kode_pembalap)
+    update_pole_kode_pembalap(kode_balapan, musim_balapan, kode_pembalap)
 
 
-def update_fl_kode_pembalap(kode_balapan, kode_pembalap):
+def update_fl_kode_pembalap(kode_balapan, musim_balapan, kode_pembalap):
     mydb = db_activator()
     mycursor = mydb.cursor()
-    mycursor.execute(QUERY_UPDATE_FL, (kode_pembalap, kode_balapan))
+    mycursor.execute(QUERY_UPDATE_FL, (kode_pembalap, kode_balapan, musim_balapan))
     mydb.commit()
     db_closer(mycursor, mydb)
 
 
-def update_fl_link(kode_balapan, url_fl):
+def update_fl_link(kode_balapan, musim_balapan, url_fl):
     tbody = soup_creator(url_fl).find("tbody")
     kode_pembalap = (
         tbody.find_all("tr")[0]
@@ -86,10 +87,10 @@ def update_fl_link(kode_balapan, url_fl):
         .find("span", class_="md:hidden")
         .text
     )
-    update_fl_kode_pembalap(kode_balapan, kode_pembalap)
+    update_fl_kode_pembalap(kode_balapan, musim_balapan, kode_pembalap)
 
 
-def update_sprint(kode_balapan, url_hasil_sprint):
+def update_sprint(kode_balapan, musim_balapan, url_hasil_sprint):
     tbody = soup_creator(url_hasil_sprint).find("tbody")
     mydb = db_activator()
     mycursor = mydb.cursor()
@@ -101,7 +102,7 @@ def update_sprint(kode_balapan, url_hasil_sprint):
         if len(sprint_pos) == 1:
             sprint_pos = "0" + sprint_pos
         kode_pembalap = list_td[2].find("span", class_="md:hidden").text
-        val = (sprint_pos, kode_pembalap, kode_balapan)
+        val = (sprint_pos, kode_pembalap, kode_balapan, musim_balapan)
         mycursor.execute(QUERY_UPDATE_SPRINT, val)
         mydb.commit()
         i += 1
