@@ -43,7 +43,7 @@ if __name__ == "__main__":
             print("Anda hendak membuat templat berdasarkan data yang tersimpan di dalam basis data")
             print("Templat yang dapat dibuat:")
             print("1. Templat F1 Drivers Standing")
-            print("2. Templat F1R2025")
+            print("2. Templat F1R")
             print("0. Batal")
             opsi_templat = input("Masukkan kode templat yang ingin dibuat:")
             if opsi_templat == "0":
@@ -53,7 +53,7 @@ if __name__ == "__main__":
             elif opsi_templat == "1":
                 creator_template.creator_f1_drivers_standing()
             elif opsi_templat == "2":
-                creator_template.creator_f1r2025()
+                creator_template.creator_f1r()
             else:
                 wrong_input()
         else:

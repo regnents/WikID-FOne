@@ -3,43 +3,50 @@ from additional_func import db_activator, db_closer, f1r_coltit_color, f1_race_p
 RACE_AMOUNT = 24
 QUERY_SELECT_HASIL_BALAPAN_TERURUT = """
 SELECT balapan.urutan, hasil_balapan.posisi, hasil_balapan.posisi_sprint, hasil_balapan.pole, hasil_balapan.fl, hasil_balapan.dnf
-FROM balapan LEFT JOIN hasil_balapan ON balapan.kode = hasil_balapan.kode_balapan
+FROM balapan LEFT JOIN hasil_balapan 
+ON balapan.kode = hasil_balapan.kode_balapan
+AND balapan.musim = hasil_balapan.musim 
 WHERE hasil_balapan.kode_pembalap = %s
+AND balapan.musim = %s
 ORDER BY balapan.urutan;
 """
-QUERY_SELECT_BALAPAN_TERURUT = """SELECT * FROM balapan ORDER BY urutan;"""
+QUERY_SELECT_BALAPAN_TERURUT = """
+SELECT * FROM balapan
+WHERE musim = %s
+ORDER BY urutan;
+"""
 QUERY_SELECT_KLASEMEN_TERURUT_POSISI = """
 SELECT pembalap.kode, pembalap.nama, pembalap.judul, pembalap.nation, klasemen.poin 
-FROM pembalap JOIN klasemen ON pembalap.kode=klasemen.kode_pembalap 
-ORDER BY klasemen.posisi_klasemen;
+FROM pembalap JOIN klasemen 
+ON pembalap.kode=klasemen.kode_pembalap 
+WHERE klasemen.musim = %s
+ORDER BY klasemen.posisi_klasemen
+;
 """
-QUERY_SELECT_KLASEMEN_TERURUT_KODE_PEMBALAP = (
-    "SELECT * FROM klasemen ORDER BY kode_pembalap;"
-)
+QUERY_SELECT_KLASEMEN_TERURUT_KODE_PEMBALAP = """SELECT * FROM klasemen 
+WHERE musim = %s
+ORDER BY kode_pembalap;
+"""
 QUERY_SELECT_HASIL_BALAPAN_SPESIFIK_PEMBALAP_BALAPAN = """
 SELECT  posisi, posisi_sprint, pole, fl, dnf
 FROM hasil_balapan
-WHERE kode_pembalap=%s AND kode_balapan=%s;
+WHERE kode_pembalap = %s 
+AND kode_balapan = %s 
+AND musim = %s;
 """
 
 
 def creator_f1_drivers_standing():
+    musim = input("Masukkan musim yang ingin dibuat: ")
     mydb = db_activator()
     mycursor = mydb.cursor()
 
-    mycursor.execute(QUERY_SELECT_BALAPAN_TERURUT)
+    mycursor.execute(QUERY_SELECT_BALAPAN_TERURUT, (musim,))
     list_balapan = mycursor.fetchall()
 
-    text = """<!-- Tolong jangan perbarui templat ini menggunakan {{F1R2025}} karena dapat menyebabkan artikel [[Formula Satu musim 2025]] melewati batas transklusi artikel dan merusak artikel tersebut -->
-<div style="overflow-x: auto; margin: 1em 0">
-{|
-|
-{|class="wikitable" style="font-size:80%; text-align:center"
-"""
+    text = "<!-- Tolong jangan perbarui templat ini menggunakan {{F1R" + musim + "}} karena dapat menyebabkan artikel [[Formula Satu musim " + musim + ']] melewati batas transklusi artikel dan merusak artikel tersebut -->\n<div style="overflow-x: auto; margin: 1em 0">\n{|\n|\n{|class="wikitable" style="font-size:80%; text-align:center"\n'
     # PENAMBAHAN HEADER ATAS
-    text_header = """!{{Abbr|Pos|Posisi}}
-!Pembalap
-"""
+    text_header = "!{{Abbr|Pos|Posisi}}\n!Pembalap\n"
     for balapan in list_balapan:
         text_header = (
             text_header
@@ -54,7 +61,7 @@ def creator_f1_drivers_standing():
     text = text + text_header
     text += '!style="position:sticky; right: 0; background-clip: padding-box;"|[[Daftar sistem poin Kejuaraan Dunia Formula Satu|Poin]]\n|-\n'
     # PEMBUATAN ISI TABEL TEMPLAT
-    mycursor.execute(QUERY_SELECT_KLASEMEN_TERURUT_POSISI)
+    mycursor.execute(QUERY_SELECT_KLASEMEN_TERURUT_POSISI, (musim,))
     list_pembalap = mycursor.fetchall()
     for i in range(len(list_pembalap)):
         text_driver = "! " + str(i + 1) + "\n"
@@ -75,7 +82,7 @@ def creator_f1_drivers_standing():
             )
         else:
             text_driver = text_driver + "[[" + list_pembalap[i][1] + "]]\n"
-        mycursor.execute(QUERY_SELECT_HASIL_BALAPAN_TERURUT, (list_pembalap[i][0],))
+        mycursor.execute(QUERY_SELECT_HASIL_BALAPAN_TERURUT, (list_pembalap[i][0],musim))
         list_hasil_balapan = mycursor.fetchall()
         j = 0
         k = 0
@@ -151,15 +158,16 @@ def creator_f1_drivers_standing():
     db_closer(mycursor, mydb)
 
 
-def creator_f1r2025():
+def creator_f1r():
+    musim = input("Masukkan musim yang ingin dibuat: ")
     mydb = db_activator()
     mycursor = mydb.cursor()
 
     text = "{{safesubst:<noinclude />#switch: {{{1|}}}\n | UPTO = "
-    mycursor.execute(QUERY_SELECT_KLASEMEN_TERURUT_KODE_PEMBALAP)
+    mycursor.execute(QUERY_SELECT_KLASEMEN_TERURUT_KODE_PEMBALAP, (musim,))
     list_pembalap = mycursor.fetchall()
 
-    mycursor.execute(QUERY_SELECT_BALAPAN_TERURUT)
+    mycursor.execute(QUERY_SELECT_BALAPAN_TERURUT, (musim,))
     list_balapan = mycursor.fetchall()
 
     for pembalap in list_pembalap:
@@ -169,7 +177,7 @@ def creator_f1r2025():
         for balapan in list_balapan:
             mycursor.execute(
                 QUERY_SELECT_HASIL_BALAPAN_SPESIFIK_PEMBALAP_BALAPAN,
-                (pembalap[0], balapan[0]),
+                (pembalap[0], balapan[0], musim),
             )
             hasil_balapan = mycursor.fetchone()
 
@@ -220,6 +228,6 @@ def creator_f1r2025():
         text += text_driver
     text += "\n\n}}<noinclude>\n{{Documentation}}</noinclude>"
     text = text.replace("Sao", "São")
-    with open("f1r2025.txt", "w", encoding="utf-8") as f:
+    with open("f1r"+musim+".txt", "w", encoding="utf-8") as f:
         f.write(text)
     db_closer(mycursor, mydb)
