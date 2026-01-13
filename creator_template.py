@@ -217,8 +217,11 @@ def creator_f1r():
         text_driver += "\n"
         text_driver = text_driver + " | points = " + str(pembalap[1]) + "\n"
         text_driver = (
-            text_driver + " | WDC = {{Coltit|x=}} " + str(int(pembalap[2])) + "\n"
+            text_driver + " | WDC = {{Coltit|x=}} "
         )
+        if (pembalap[2]):
+            text_driver  += str(int(pembalap[2]))
+        text_driver += "\n"
         text_driver = (
             text_driver
             + " | points2 = {{Coltit|x=}} "
