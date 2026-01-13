@@ -186,4 +186,4 @@ temp/
 
 # Result file
 drivers_standing.txt
-f1r2025.txt
+f1r20*.txt
